@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SISKO | Dashboard</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="/css/adminlte.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+    <script src="/js/components-loader.js" defer></script>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --bg-soft: #f4f5f7;
+        --border: #e2e4e8;
+        --border-strong: #d0d3d8;
+        --text: #1f2225;
+        --text-soft: #6b7077;
+        --accent: #4a60f0;
+        --accent-soft: #eef1ff;
+        --radius: 0.9rem;
+        --shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+      }
+      body {
+        color: var(--text);
+        background: var(--bg-soft);
+      }
+      .stat-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .stat-box {
+        flex: 1 1 160px;
+        min-width: 160px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0.95rem 1rem;
+        display: flex;
+        gap: 0.85rem;
+        align-items: center;
+        transition: 0.15s;
+      }
+      .stat-box:hover {
+        border-color: var(--border-strong);
+        background: var(--accent-soft);
+      }
+      .stat-icon {
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-soft);
+        border-radius: 14px;
+        font-size: 1.35rem;
+        color: var(--accent);
+      }
+      .stat-box h3 {
+        margin: 0;
+        font-size: 1.55rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+      .stat-box p {
+        margin: 0;
+        font-size: 0.68rem;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: var(--text-soft);
+        font-weight: 500;
+      }
+      .card-modern {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.3rem;
+      }
+      .card-modern .card-header {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(140deg, #fafbff, #f3f5f9);
+        border-radius: var(--radius) var(--radius) 0 0;
+      }
+      .card-modern .card-title {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        letter-spacing: 0.4px;
+        color: var(--text);
+      }
+      .card-modern .card-body {
+        padding: 1rem;
+      }
+      #attendance-chart {
+        height: 300px;
+      }
+      .list-group-item {
+        font-size: 0.78rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .empty-state {
+        padding: 1.2rem;
+        font-size: 0.75rem;
+        color: var(--text-soft);
+        text-align: center;
+      }
+      .breadcrumb {
+        margin: 0;
+        background: transparent;
+      }
+      .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+      }
+      @media (max-width: 992px) {
+        .stat-box {
+          flex: 1 1 calc(50% - 0.5rem);
+        }
+      }
+      @media (max-width: 576px) {
+        .stat-box {
+          flex: 1 1 100%;
+        }
+      }
+    </style>
+  </head>
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+      <nav data-component="navbar" class="app-header"></nav>
+      <aside data-component="sidebar" class="app-sidebar"></aside>
+
+      <main class="app-main p-3">
+        <div class="container-fluid">
+          <div
+            class="d-flex flex-wrap justify-content-between align-items-start mb-3"
+          >
+            <div>
+              <h2 class="h5 mb-1" style="font-weight: 600">Dashboard</h2>
+              <div class="text-secondary small">
+                Ringkasan kehadiran & aktivitas
+              </div>
+            </div>
+            <ol class="breadcrumb small">
+              <li class="breadcrumb-item">
+                <a href="/pages/dashboard/index.html">Home</a>
+              </li>
+              <li class="breadcrumb-item active">Dashboard</li>
+            </ol>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="stat-icon"><i class="bi bi-people"></i></div>
+              <div>
+                <h3 id="statSiswa">0</h3>
+                <p>Total Siswa</p>
+              </div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+              <div>
+                <h3 id="statHadir">0</h3>
+                <p>Hadir Hari Ini</p>
+              </div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-icon">
+                <i class="bi bi-box-arrow-in-right"></i>
+              </div>
+              <div>
+                <h3 id="statIzin">0</h3>
+                <p>Izin Hari Ini</p>
+              </div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-icon">
+                <i class="bi bi-thermometer-half"></i>
+              </div>
+              <div>
+                <h3 id="statSakit">0</h3>
+                <p>Sakit Hari Ini</p>
+              </div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-icon"><i class="bi bi-slash-circle"></i></div>
+              <div>
+                <h3 id="statAlfa">0</h3>
+                <p>Alfa Hari Ini</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-7">
+              <div class="card-modern">
+                <div class="card-header">
+                  <h3 class="card-title">
+                    <i class="bi bi-graph-up-arrow"></i> Tren Kehadiran 7 Hari
+                  </h3>
+                </div>
+                <div class="card-body">
+                  <div id="attendance-chart"></div>
+                  <div
+                    id="chart-empty"
+                    class="empty-state"
+                    style="display: none"
+                  >
+                    Belum ada data untuk ditampilkan.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card-modern">
+                <div class="card-header">
+                  <h3 class="card-title">
+                    <i class="bi bi-clock-history"></i> Aktivitas Terbaru
+                  </h3>
+                </div>
+                <div
+                  class="card-body p-0"
+                  style="max-height: 300px; overflow: auto"
+                >
+                  <div
+                    id="activity-list"
+                    class="list-group list-group-flush"
+                  ></div>
+                </div>
+              </div>
+              <div class="card-modern mt-3">
+                <div class="card-header">
+                  <h3 class="card-title">
+                    <i class="bi bi-info-circle"></i> Ringkas Hari Ini
+                  </h3>
+                </div>
+                <div class="card-body py-2">
+                  <ul
+                    id="today-summary"
+                    class="list-unstyled mb-0"
+                    style="font-size: 0.75rem"
+                  ></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <strong>© 2025 SISKO</strong> Dashboard Minimalis.
+      </footer>
+    </div>
+
+    <script src="/js/auth/auth-storage.js"></script>
+    <script src="/js/auth/auth-service.js"></script>
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/adminlte.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+    <script src="/js/siswa/siswa-storage.js"></script>
+    <script src="/js/kehadiran/kehadiran-storage.js"></script>
+    <script src="/js/kehadiran/kehadiran-seed.js"></script>
+    <script src="/js/common/activity-log.js"></script>
+    <script src="/js/dashboard/dashboard-stats.js"></script>
+    <script src="/js/dashboard/dashboard-chart.js"></script>
+    <script src="/js/dashboard/dashboard-activity.js"></script>
+  </body>
+</html>

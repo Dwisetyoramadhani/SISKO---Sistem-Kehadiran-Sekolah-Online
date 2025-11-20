@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SISKO | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- AdminLTE -->
+    <link rel="stylesheet" href="/css/adminlte.css" />
+
+    <!-- Icons & Scrollbars -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css"
+    />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+
+    <!-- Component Loader -->
+    <script src="/js/components-loader.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/kelas/kelas-storage.js"></script>
+  </head>
+
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+      <!-- Navbar -->
+      <nav data-component="navbar" class="app-header"></nav>
+
+      <!-- Sidebar -->
+      <aside data-component="sidebar" class="app-sidebar"></aside>
+
+      <!-- Main Content -->
+      <main class="app-main">
+        <div class="container">
+          <h3 class="mb-4">Form Input Data Kelas</h3>
+
+          <form id="formKelas" class="card p-4 shadow-sm">
+            <div class="mb-3">
+              <label class="form-label">Kelas</label>
+              <select class="form-select" id="kelas" required>
+                <option value="">-- Pilih Kelas --</option>
+                <option>X</option>
+                <option>XI</option>
+                <option>XII</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Wali Kelas</label>
+              <input
+                type="text"
+                class="form-control"
+                id="walikelas"
+                placeholder="Nama wali kelas"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Jurusan</label>
+              <select class="form-select" id="jurusan" required>
+                <option value="">-- Pilih Jurusan --</option>
+                <option>TP 1</option>
+                <option>TP 2</option>
+                <option>GP</option>
+                <option>RPL 1</option>
+                <option>RPL 2</option>
+                <option>RPL 3</option>
+                <option>RPL 4</option>
+                <option>PH 1</option>
+                <option>PH 2</option>
+                <option>KL 1</option>
+                <option>KL 2</option>
+                <option>ATR 1</option>
+                <option>ATR 2</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Simpan</button>
+          </form>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <strong>
+          Copyright © 2025
+          <a href="#" class="text-decoration-none">sisko</a>.
+        </strong>
+        All rights reserved.
+      </footer>
+    </div>
+
+    <!-- AdminLTE Script -->
+    <script src="/js/adminlte.js"></script>
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- add form handler -->
+    <script src="/js/kelas/formKelas.js"></script>
+  </body>
+</html>

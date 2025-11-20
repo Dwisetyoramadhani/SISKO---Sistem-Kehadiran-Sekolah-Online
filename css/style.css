@@ -1,0 +1,182 @@
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #26deb3, #ffffff);
+      background-size: 200% 200%;
+      animation: gradienMlaku 8s ease infinite;
+    }
+
+    /* Container utama */
+    .login-container {
+      width: 100%;
+      max-width: 1000px;
+      background: #fff;
+      border-radius: 30px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      display: flex;
+      overflow: hidden;
+      
+    }
+
+    /* Bagian kiri - form login */
+    .form-section {
+      flex: 1;
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-section img {
+      width: 200px;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #333;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid #ced4da;
+    }
+
+    /* Tombol */
+    /* .btn-primary {
+      background: linear-gradient(90deg, #65e788, #4EA6FF);
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      color: white;
+      transition: background 0.5s ease, transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: liniear-gradient(90deg, #4bc3ff, #5DD37C);
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    } */
+    .btn-primary {
+  background: linear-gradient(90deg, #65e788, #4EA6FF);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  color: white;
+  transition: background 0.5s ease, transform 0.3s ease, filter 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #4EA6FF, #65e788); /* dibalik */
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+@keyframes gradienMlaku {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+    .btn-outline-primary {
+      border: 1.5px solid #4EA6FF;
+      color: #4EA6FF;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+      background: #4EA6FF;
+      color: white;
+    }
+
+    .divider {
+      text-align: center;
+      color: #999;
+      font-size: 0.9rem;
+      margin: 10px 0;
+    }
+
+    /* Bagian kanan - gambar */
+    .gambar-section {
+      flex: 1.2;
+      background-color: #F4FBFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .gambar-section img {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+    }
+
+    /* Responsif di layar sedang (tablet) */
+    @media (max-width: 992px) {
+      .login-container {
+        flex-direction: column;
+        max-width: 600px;
+      }
+
+      .gambar-section {
+        background: none;
+        padding: 1rem;
+      }
+
+      .gambar-section img {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .form-section {
+        padding: 2.5rem 2rem;
+      }
+
+      .form-section img {
+        width: 160px;
+      }
+
+      .gambar-section img {
+        display: none;
+      }
+    }
+
+    /* Responsif di layar kecil (HP) */
+    @media (max-width: 576px) {
+      .form-section {
+        padding: 2rem 1.5rem;
+      }
+
+      .form-section img {
+        width: 150px;
+      }
+
+      .gambar-section img {
+        display: none;
+      }
+    }

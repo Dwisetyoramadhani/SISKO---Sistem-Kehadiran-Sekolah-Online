@@ -1,0 +1,144 @@
+<aside class="app-sidebar custom-sidebar shadow-sm" data-bs-theme="light">
+  <style>
+    .custom-sidebar {
+      --sb-primary: #4a60f0;
+      --sb-bg: #ffffff;
+      --sb-text: #2b3137;
+      --sb-muted: #6b7077;
+      --sb-hover: #f3f5ff;
+      background: var(--sb-bg);
+      border-right: 1px solid #e8eaee;
+    }
+    .custom-sidebar .sidebar-brand {
+      border-bottom: 1px solid #eef0f3;
+      background: #fff;
+    }
+    .custom-sidebar .section-label {
+      padding: 0.75rem 1rem 0.25rem;
+      color: var(--sb-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .custom-sidebar .class-box {
+      margin: 0.75rem 1rem 1rem;
+      padding: 0.8rem 1rem;
+      background: #f7f9ff;
+      border: 1px solid #e6ecff;
+      border-radius: 0.9rem;
+    }
+    .custom-sidebar .class-box .cap {
+      font-size: 0.75rem;
+      color: var(--sb-muted);
+    }
+    .custom-sidebar .class-box .val {
+      font-weight: 600;
+      color: #223;
+    }
+    .custom-sidebar .nav.sidebar-menu {
+      padding: 0.25rem 0.75rem 1rem;
+    }
+    .custom-sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      color: var(--sb-text);
+      font-weight: 500;
+      padding: 0.55rem 0.65rem;
+      border-radius: 0.7rem;
+      transition: all 0.18s ease;
+      border: 1px solid transparent;
+    }
+    .custom-sidebar .nav-link .nav-icon {
+      font-size: 1.05rem;
+      color: #8590a2;
+      transition: color 0.18s ease;
+    }
+    .custom-sidebar .nav-link:hover {
+      background: var(--sb-hover);
+      color: #1f2333;
+    }
+    .custom-sidebar .nav-link:hover .nav-icon {
+      color: #4a60f0;
+    }
+    .custom-sidebar .nav-link.active {
+      background: var(--sb-primary);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(74, 96, 240, 0.18);
+    }
+    .custom-sidebar .nav-link.active .nav-icon {
+      color: #fff;
+    }
+    .custom-sidebar .logout-btn {
+      margin: 0.5rem 0.75rem 1rem;
+      border-radius: 0.7rem;
+      border: 1px solid #f1d6d6 !important;
+      color: #b03a3a;
+      background: #fff0f0;
+    }
+    .custom-sidebar .logout-btn:hover {
+      background: #ffe6e6;
+      color: #912f2f;
+    }
+  </style>
+
+  <div class="sidebar-brand text-center py-3">
+    <img
+      src="/img/LOGO1RMV.webp"
+      alt="Logo"
+      style="width: 150px; height: auto; object-fit: contain"
+    />
+  </div>
+
+  <div class="sidebar-wrapper">
+    <div class="section-label">Menu</div>
+    <nav class="mt-1">
+      <ul class="nav sidebar-menu flex-column">
+        <li class="nav-item">
+          <a href="/pages/kelas-dashboard/index.html" class="nav-link">
+            <i class="nav-icon bi bi-speedometer"></i>
+            <p class="mb-0">Dashboard Kelas</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/pages/kelas-kehadiran.html" class="nav-link">
+            <i class="nav-icon bi bi-calendar-check"></i>
+            <p class="mb-0">Kehadiran Kelas</p>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <button
+      class="btn btn-outline-danger w-100 d-flex align-items-center gap-2 logout-btn"
+      onclick="Auth.logout(); location.href='/pages/login.html';"
+    >
+      <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      // Set active menu
+      const path = (location.pathname || "").replace(/\\/g, "/").toLowerCase();
+      document.querySelectorAll(".custom-sidebar .nav-link").forEach((a) => {
+        const href = (a.getAttribute("href") || "").toLowerCase();
+        const base = href.replace(/index\.html$/, "");
+        if (path === href || (base && path.startsWith(base)))
+          a.classList.add("active");
+      });
+      // Isi kelas & akun dari session
+      try {
+        const s = window.Auth?.session?.();
+        if (s) {
+          const cls = document.getElementById("sidebarClassLabel");
+          const usr = document.getElementById("sidebarUser");
+          if (cls && s.role === "kelas")
+            cls.textContent =
+              `${s.kelas || ""} ${s.jurusan || ""}`.trim() || "-";
+          if (usr) usr.textContent = s.username || "-";
+        }
+      } catch {}
+    })();
+  </script>
+</aside>

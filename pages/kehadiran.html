@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SISKO | Kehadiran</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/adminlte.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+    />
+    <script src="/js/components-loader.js" defer></script>
+    <style>
+      .stat-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .stat-card {
+        flex: 1 1 180px;
+        min-width: 180px;
+        border-radius: 0.6rem;
+      }
+      .stat-value {
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+      .filter-bar .form-select,
+      .filter-bar .form-control {
+        min-width: 140px;
+      }
+      .table thead th {
+        background: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+      .badge-status {
+        font-weight: 500;
+      }
+      .badge-status.Hadir {
+        background: #d1e7dd;
+        color: #0f5132;
+      }
+      .badge-status.Izin {
+        background: #e2e3e5;
+        color: #41464b;
+      }
+      .badge-status.Sakit {
+        background: #fff3cd;
+        color: #664d03;
+      }
+      .badge-status.Alfa {
+        background: #f8d7da;
+        color: #842029;
+      }
+      @media (max-width: 576px) {
+        .filter-bar {
+          flex-direction: column;
+          align-items: stretch !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+      <nav data-component="navbar" class="app-header"></nav>
+      <aside data-component="sidebar" class="app-sidebar"></aside>
+
+      <main class="app-main p-4">
+        <div class="container-fluid">
+          <div class="mb-3">
+            <h2 class="h4 mb-1">Manajemen Kehadiran</h2>
+            <p class="text-secondary mb-0">
+              Pantau dan kelola status kehadiran siswa.
+            </p>
+          </div>
+
+          <div class="stat-grid">
+            <div class="card stat-card shadow-sm">
+              <div class="card-body py-3">
+                <div class="text-secondary small">Total Entri</div>
+                <div id="statTotal" class="stat-value">0</div>
+              </div>
+            </div>
+            <div class="card stat-card shadow-sm">
+              <div class="card-body py-3">
+                <div class="text-secondary small">Hadir</div>
+                <div id="statHadir" class="stat-value">0</div>
+              </div>
+            </div>
+            <div class="card stat-card shadow-sm">
+              <div class="card-body py-3">
+                <div class="text-secondary small">Izin</div>
+                <div id="statIzin" class="stat-value">0</div>
+              </div>
+            </div>
+            <div class="card stat-card shadow-sm">
+              <div class="card-body py-3">
+                <div class="text-secondary small">Sakit</div>
+                <div id="statSakit" class="stat-value">0</div>
+              </div>
+            </div>
+            <div class="card stat-card shadow-sm">
+              <div class="card-body py-3">
+                <div class="text-secondary small">Alfa</div>
+                <div id="statAlfa" class="stat-value">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm mb-3">
+            <div
+              class="card-header d-flex align-items-center flex-wrap gap-2 filter-bar"
+            >
+              <input
+                id="searchKehadiran"
+                class="form-control form-control-sm"
+                placeholder="Cari nama / kelas / status / keterangan"
+              />
+              <select id="filterKelas" class="form-select form-select-sm">
+                <option value="">Semua Kelas</option>
+              </select>
+              <select id="filterStatus" class="form-select form-select-sm">
+                <option value="">Semua Status</option>
+                <option value="Hadir">Hadir</option>
+                <option value="Izin">Izin</option>
+                <option value="Sakit">Sakit</option>
+                <option value="Alfa">Alfa</option>
+              </select>
+              <input
+                id="filterFrom"
+                type="date"
+                class="form-control form-control-sm"
+              />
+              <input
+                id="filterTo"
+                type="date"
+                class="form-control form-control-sm"
+              />
+              <button
+                id="btnApplyRange"
+                class="btn btn-outline-secondary btn-sm"
+              >
+                Filter Tanggal
+              </button>
+              <div class="ms-auto d-flex gap-2">
+                <button id="btnTambahKehadiran" class="btn btn-primary btn-sm">
+                  <i class="bi bi-plus-lg"></i> Tambah
+                </button>
+                <button
+                  id="btnExportKehadiran"
+                  class="btn btn-outline-success btn-sm"
+                >
+                  <i class="bi bi-download"></i> Export CSV
+                </button>
+                <button
+                  id="btnRefreshKehadiran"
+                  class="btn btn-outline-secondary btn-sm"
+                  title="Refresh"
+                >
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <button
+                  id="btnClearAllKehadiran"
+                  class="btn btn-outline-danger btn-sm"
+                  title="Hapus Semua"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive" style="max-height: 60vh">
+                <table
+                  class="table table-hover table-striped align-middle mb-0"
+                >
+                  <thead>
+                    <tr>
+                      <th style="width: 50px">#</th>
+                      <th>Nama</th>
+                      <th>Kelas</th>
+                      <th>Tanggal</th>
+                      <th>Status</th>
+                      <th>Keterangan</th>
+                      <th style="width: 80px">Bukti</th>
+                      <th style="width: 110px">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kehadiranTbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer small d-flex justify-content-between">
+              <span id="kehadiranInfoCount">0 baris</span>
+              <span class="text-secondary">Gunakan pencarian & filter</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <strong>Copyright &copy; 2025 <a href="#">SISKO</a>.</strong> All rights
+        reserved.
+      </footer>
+    </div>
+
+    <script src="/js/auth/auth-storage.js"></script>
+    <script src="/js/auth/auth-service.js"></script>
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/adminlte.js"></script>
+    <script src="/js/siswa/siswa-storage.js"></script>
+    <script src="/js/kelas/kelas-storage.js"></script>
+    <script src="/js/kehadiran/kehadiran-storage.js"></script>
+    <script src="/js/kehadiran/kehadiran-page.js"></script>
+    <script src="/js/auth.js"></script>
+  </body>
+</html>
