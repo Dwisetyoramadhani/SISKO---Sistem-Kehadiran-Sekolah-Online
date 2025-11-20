@@ -1,18 +1,45 @@
-(function(){
+// Memuat komponen HTML dari /components dan mengeksekusi <script> di dalamnya
+(function () {
+  const MAP = {
+    navbar: '/components/navbar.html',
+    sidebar: '/components/sidebar.html',
+    'sidebar-kelas': '/components/sidebar-kelas.html',
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-component]').forEach(el => {
-      const name = el.getAttribute('data-component');
-      const map = {
-        'navbar': '/components/navbar.html',
-        'sidebar': '/components/sidebar.html',
-        'sidebar-kelas': '/components/sidebar-kelas.html'
-      };
-      const url = map[name];
+    document.querySelectorAll('[data-component]').forEach(async (placeholder) => {
+      const name = placeholder.getAttribute('data-component');
+      const url = MAP[name];
       if (!url) return;
-      fetch(url)
-        .then(r=>r.text())
-        .then(html=>{ el.outerHTML = html; })
-        .catch(err=>console.error('Load component gagal', name, err));
+
+      try {
+        const res = await fetch(url, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const html = await res.text();
+
+        const wrap = document.createElement('div');
+        wrap.innerHTML = html.trim();
+        const node = wrap.firstElementChild || document.createTextNode('');
+
+        // Ganti placeholder dengan node komponen
+        placeholder.replaceWith(node);
+
+        // Eksekusi ulang semua <script> di dalam komponen
+        node.querySelectorAll('script').forEach((old) => {
+          const s = document.createElement('script');
+          // salin atribut (src, type, dll)
+          [...old.attributes].forEach((a) => s.setAttribute(a.name, a.value));
+          if (old.src) {
+            s.src = old.src;
+          } else {
+            s.textContent = old.textContent || '';
+          }
+          // ganti node script lama
+          old.replaceWith(s);
+        });
+      } catch (err) {
+        console.error(`Gagal load komponen: ${name} → ${url}`, err);
+      }
     });
   });
 })();

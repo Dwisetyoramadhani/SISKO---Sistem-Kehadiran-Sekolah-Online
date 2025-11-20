@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SISKO | Dashboard Kelas</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- BASE dinamis: SELALU ke root situs (bukan /pages/) -->
+    <script>
+      (function () {
+        // Hapus base lama jika ada (hindari duplikat)
+        document.querySelectorAll("base").forEach((n, i) => {
+          if (i > 0) n.remove();
+        });
+        const gh = location.hostname.endsWith("github.io");
+        const repo = gh
+          ? location.pathname.split("/").filter(Boolean)[0] || ""
+          : "";
+        const base = gh ? `/${repo}/` : "/";
+        const el = document.createElement("base");
+        el.setAttribute("href", base);
+        // Jika ada base pertama yang salah (mengandung /pages/), betulkan
+        const exist = document.querySelector("base");
+        if (exist) {
+          const h = exist.getAttribute("href") || "";
+          if (/\/pages\/$/i.test(h)) exist.setAttribute("href", base);
+        } else {
+          document.head.insertBefore(el, document.head.firstChild);
+        }
+        // console.log('[BASE]', document.querySelector('base')?.href);
+      })();
+    </script>
+
+    <link rel="stylesheet" href="css/adminlte.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+    <script src="js/components-loader.js" defer></script>
+
+    <style>
+      :root {
+        --card-bg: #fff;
+        --muted: #6b7077;
+        --border: #e6e8ee;
+      }
+      .stat-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--card-bg);
+        transition: 0.15s;
+        cursor: pointer;
+      }
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        border-color: #dde0e7;
+      }
+      .stat-card .card-body {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+      }
+      .stat-card .ic {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.15rem;
+      }
+      .stat-card .meta .cap {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .stat-card .meta .val {
+        font-weight: 700;
+        font-size: 1.35rem;
+      }
+      .stat-card.is-total .ic {
+        background: linear-gradient(135deg, #617dff, #8aa0ff);
+      }
+      .stat-card.is-hadir .ic {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+      }
+      .stat-card.is-izin .ic {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      }
+      .stat-card.is-sakit .ic {
+        background: linear-gradient(135deg, #f87171, #ef4444);
+      }
+      .stat-card.is-alfa .ic {
+        background: linear-gradient(135deg, #9aa2af, #6b7280);
+      }
+      .section-title {
+        color: #374151;
+        font-weight: 600;
+      }
+      #attendance-chart {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: #fff;
+      }
+      #chart-empty {
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 12px;
+      }
+    </style>
+  </head>
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+      <nav data-component="navbar" class="app-header"></nav>
+      <aside data-component="sidebar-kelas" class="app-sidebar"></aside>
+
+      <main class="app-main p-4">
+        <div class="container-fluid">
+          <h2 class="h5 mb-3">Dashboard Kelas</h2>
+
+          <div class="row g-3" id="statsRow">
+            <div class="col-sm-6 col-lg-3">
+              <div id="cardTotal" class="card stat-card is-total">
+                <div class="card-body py-3">
+                  <div class="ic"><i class="bi bi-people"></i></div>
+                  <div class="meta">
+                    <div class="cap">Jumlah Siswa</div>
+                    <div id="statSiswa" class="val">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div id="cardHadir" class="card stat-card is-hadir">
+                <div class="card-body py-3">
+                  <div class="ic"><i class="bi bi-check-circle"></i></div>
+                  <div class="meta">
+                    <div class="cap">Hadir Hari Ini</div>
+                    <div id="statHadir" class="val">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div id="cardIzin" class="card stat-card is-izin">
+                <div class="card-body py-3">
+                  <div class="ic"><i class="bi bi-envelope-open"></i></div>
+                  <div class="meta">
+                    <div class="cap">Izin</div>
+                    <div id="statIzin" class="val">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div id="cardSakit" class="card stat-card is-sakit">
+                <div class="card-body py-3">
+                  <div class="ic"><i class="bi bi-thermometer-half"></i></div>
+                  <div class="meta">
+                    <div class="cap">Sakit</div>
+                    <div id="statSakit" class="val">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div id="cardAlfa" class="card stat-card is-alfa">
+                <div class="card-body py-3">
+                  <div class="ic"><i class="bi bi-x-circle"></i></div>
+                  <div class="meta">
+                    <div class="cap">Alfa</div>
+                    <div id="statAlfa" class="val">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="section-title mt-4 mb-2">Ringkasan Hari Ini</h6>
+          <ul id="today-summary" class="small"></ul>
+
+          <div class="mt-4">
+            <h6 class="section-title mb-2">Grafik Kehadiran 7 Hari</h6>
+            <div id="attendance-chart"></div>
+            <div
+              id="chart-empty"
+              class="text-secondary small"
+              style="display: none"
+            >
+              Belum ada data grafik.
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer small text-center py-3">
+        © 2025 SISKO - Dashboard Kelas
+      </footer>
+    </div>
+
+    <!-- Script: gunakan path RELATIF (tanpa slash depan) -->
+    <script src="js/auth/auth-storage.js"></script>
+    <script src="js/auth/auth-service.js"></script>
+    <script src="js/auth/auth-guard.js"></script>
+
+    <script src="js/siswa/siswa-storage.js"></script>
+    <script src="js/kehadiran/kehadiran-storage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+
+    <script src="js/dashboard/kelas-dashboard-stats.js"></script>
+    <script src="js/dashboard/kelas-dashboard-chart.js"></script>
+  </body>
+</html>
