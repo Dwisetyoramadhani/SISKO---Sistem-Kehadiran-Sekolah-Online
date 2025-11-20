@@ -4,24 +4,24 @@
 >
   <a
     class="navbar-brand d-flex align-items-center gap-2"
-    href="/pages/dashboard/index.html"
+    href="pages/dashboard/index.html"
   >
-    <img
-      src="/img/LOGO1RMV.webp"
-      alt="Logo"
-      style="height: 28px; width: auto"
-    />
+    <img src="img/LOGO1RMV.webp" alt="Logo" style="height: 28px; width: auto" />
     <span class="fw-semibold">SISKO</span>
   </a>
   <div class="ms-auto d-flex align-items-center gap-3">
     <span class="text-secondary small" id="navUser">-</span>
-    <button class="btn btn-sm btn-outline-danger" id="btnNavLogout">
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-danger"
+      id="btnNavLogout"
+    >
       <i class="bi bi-box-arrow-right"></i> Logout
     </button>
   </div>
   <script>
     (function () {
-      try {
+      function ready() {
         const s = window.Auth?.session?.();
         const u = document.getElementById("navUser");
         if (u && s) {
@@ -32,11 +32,20 @@
                   .join(" ")}`
               : s.username || "Admin";
         }
-      } catch {}
-      document.getElementById("btnNavLogout")?.addEventListener("click", () => {
-        Auth.logout();
-        location.href = "/pages/login.html";
-      });
+        const btn = document.getElementById("btnNavLogout");
+        btn?.addEventListener("click", () => {
+          try {
+            Auth.logout();
+          } catch {}
+          location.href = "pages/login.html";
+        });
+      }
+      function waitAuth() {
+        if (window.Auth?.logout) {
+          ready();
+        } else setTimeout(waitAuth, 40);
+      }
+      waitAuth();
     })();
   </script>
 </header>
