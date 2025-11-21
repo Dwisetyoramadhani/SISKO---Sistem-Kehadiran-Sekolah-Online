@@ -36,9 +36,3 @@ Auth.session()
 Auth.addUser({...})
 ```
 
-## Ekspor CSV
-
-Tombol Export:
-
-- OK = ekspor data terfilter
-- Cancel = ekspor semua
