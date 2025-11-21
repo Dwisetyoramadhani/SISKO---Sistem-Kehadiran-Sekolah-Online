@@ -205,8 +205,9 @@
     tbody.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-del]');
       if (!btn) return;
+
       const id = btn.getAttribute('data-del');
-      if (!id) return;
+      if (!id){ alert('ID tidak ditemukan.'); return; }
       if (!confirm('Hapus entri ini?')) return;
 
       let all;

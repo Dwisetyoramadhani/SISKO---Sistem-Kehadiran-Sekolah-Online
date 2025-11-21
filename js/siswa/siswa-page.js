@@ -1,73 +1,107 @@
-(() => {
-  const tbody = document.getElementById('siswaTbody');
-  if (!tbody) return;
+(function(){
+  document.addEventListener('DOMContentLoaded', init);
 
-  const addBtn = document.getElementById('btnTambahSiswa');
-  const searchInput = document.getElementById('searchInput');
-  const statTotal = document.getElementById('statTotal');
-  const statKelas = document.getElementById('statKelas');
-  const infoCount = document.getElementById('infoCount');
-  const btnRefresh = document.getElementById('btnRefresh');
-  const btnClearAll = document.getElementById('btnClearAll');
-
-  let data = [];
-
-  function load() {
-    data = window.SiswaStore.getAll();
-    statTotal.textContent = data.length;
-    statKelas.textContent = new Set(data.map(d => d.kelas)).size;
+  function init(){
+    ensureStore();
+    bindUI();
+    render();
   }
 
-  function getFiltered() {
-    const q = (searchInput.value || '').toLowerCase().trim();
-    if (!q) return data;
-    return data.filter(d =>
-      d.nama.toLowerCase().includes(q) ||
-      d.kelas.toLowerCase().includes(q) ||
-      (d.jurusan || '').toLowerCase().includes(q)
-    );
+  function ensureStore(){
+    if (!window.SiswaStore){
+      window.SiswaStore = (function(){
+        const KEY='sisko_siswa';
+        const getAll=()=>{ try { return JSON.parse(localStorage.getItem(KEY)||'[]'); } catch { return []; } };
+        const saveAll=list=>localStorage.setItem(KEY, JSON.stringify(list||[]));
+        return { getAll, saveAll };
+      })();
+    }
   }
 
-  function render() {
-    const rows = getFiltered();
-    tbody.innerHTML = rows.map((r, i) => `
-      <tr data-id="${r.id}">
-        <td class="text-muted">${i + 1}</td>
-        <td>${r.nama}</td>
-        <td><span class="badge badge-kelas">${r.kelas}</span></td>
-        <td>${r.jurusan || '-'}</td>
+  function bindUI(){
+    document.getElementById('searchInput')?.addEventListener('input', render);
+    document.getElementById('btnRefresh')?.addEventListener('click', render);
+    document.getElementById('btnTambahSiswa')?.addEventListener('click', (e)=>{
+      e.preventDefault();
+      window.location.href = '/forms/formSiswa.html';
+    });
+    document.getElementById('btnClearAll')?.addEventListener('click', () => {
+      if (!confirm('Hapus semua data siswa?')) return;
+      window.SiswaStore.saveAll([]);
+      render();
+    });
+
+    const tbody = document.getElementById('siswaTbody');
+    if (tbody){
+      tbody.addEventListener('click', e => {
+        const del = e.target.closest('button[data-del]');
+        if (!del) return;
+        const id = del.getAttribute('data-del');
+        if (!id) return;
+        if (!confirm('Hapus siswa ini?')) return;
+        const all = window.SiswaStore.getAll();
+        const idx = all.findIndex(x => String(x.id) === String(id));
+        if (idx > -1){
+          all.splice(idx,1);
+          window.SiswaStore.saveAll(all);
+          render();
+        } else {
+          alert('Data tidak ditemukan.');
+        }
+      });
+    }
+  }
+
+  function onUpload(){
+    const nama = prompt('Nama siswa:');
+    if (!nama) return;
+    const kelas = prompt('Tingkat (misal X, XI, XII):') || '';
+    const jurusan = prompt('Jurusan (misal RPL 1):') || '';
+    const all = window.SiswaStore.getAll();
+    all.push({ id: Date.now(), nama, kelas, jurusan });
+    window.SiswaStore.saveAll(all);
+    render();
+  }
+
+  function render(){
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+    const tbody = document.getElementById('siswaTbody');
+    const info = document.getElementById('infoCount');
+    const statTotal = document.getElementById('statTotal');
+    const statKelas = document.getElementById('statKelas');
+
+    const all = window.SiswaStore.getAll().sort((a,b)=>String(a.nama||'').localeCompare(String(b.nama||'')));
+    const filtered = all.filter(s => {
+      if (!q) return true;
+      return [s.nama,s.kelas,s.jurusan].some(v => String(v||'').toLowerCase().includes(q));
+    });
+
+    statTotal && (statTotal.textContent = all.length);
+    statKelas && (statKelas.textContent = new Set(all.map(s=>`${s.kelas||''} ${s.jurusan||''}`.trim()).filter(Boolean)).size);
+
+    if (!filtered.length){
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">Tidak ada data.</td></tr>';
+      info && (info.textContent='0 baris');
+      return;
+    }
+
+    tbody.innerHTML = filtered.map((s,i)=>`
+      <tr>
+        <td class="text-muted">${i+1}</td>
+        <td>${esc(s.nama)}</td>
+        <td><span class="badge badge-kelas">${esc(s.kelas||'-')}</span></td>
+        <td>${esc(s.jurusan||'-')}</td>
         <td>
-          <button class="btn btn-outline-danger btn-sm" data-del="${r.id}" title="Delete">
+          <button class="btn btn-sm btn-outline-danger" data-del="${s.id}">
             <i class="bi bi-trash"></i>
           </button>
         </td>
       </tr>
     `).join('');
-    infoCount.textContent = `${rows.length} baris ditampilkan`;
+    info && (info.textContent = `${filtered.length} baris`);
   }
 
-  document.addEventListener('click', e => {
-    const del = e.target.closest('[data-del]');
-    if (del) {
-      const id = Number(del.getAttribute('data-del'));
-      if (confirm('Hapus siswa ini?')) {
-        window.SiswaStore.remove(id);
-        load();
-        render();
-      }
-    }
-  });
-
-  searchInput?.addEventListener('input', render);
-  addBtn?.addEventListener('click', () => window.location.href = '/forms/formSiswa.html');
-  btnRefresh?.addEventListener('click', () => { load(); render(); });
-  btnClearAll?.addEventListener('click', () => {
-    if (!confirm('Hapus semua data siswa?')) return;
-    window.SiswaStore.clear();
-    load();
-    render();
-  });
-
-  load();
-  render();
+  function esc(s){
+    return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+  }
 })();
