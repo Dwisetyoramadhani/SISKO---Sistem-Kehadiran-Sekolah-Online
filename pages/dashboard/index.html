@@ -123,15 +123,96 @@
       .breadcrumb-item + .breadcrumb-item::before {
         content: "›";
       }
-      @media (max-width: 992px) {
-        .stat-box {
-          flex: 1 1 calc(50% - 0.5rem);
-        }
+      /* ========== Mobile polish (non-intrusive) ========== */
+      html,
+      body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      /* Ruang konten lebih rapat di layar kecil */
+      .app-main.p-3 {
+        padding: 1rem;
       }
       @media (max-width: 576px) {
-        .stat-box {
-          flex: 1 1 100%;
+        .app-main.p-3 {
+          padding: 0.75rem;
         }
+      }
+
+      /* Kontainer aman di tepi */
+      .container-fluid {
+        padding-inline: 1rem;
+      }
+      @media (max-width: 576px) {
+        .container-fluid {
+          padding-inline: 0.75rem;
+        }
+      }
+
+      /* Stat box menyesuaikan di ponsel */
+      @media (max-width: 576px) {
+        .stat-icon {
+          width: 40px;
+          height: 40px;
+          font-size: 1.1rem;
+          border-radius: 12px;
+        }
+        .stat-box h3 {
+          font-size: 1.35rem;
+        }
+        .stat-box p {
+          font-size: 0.62rem;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      /* Header/body card lebih kompak di mobile */
+      .card-modern .card-header,
+      .card-modern .card-body {
+        padding: clamp(0.75rem, 2vw, 1rem);
+      }
+
+      /* Grafik proporsional di layar kecil */
+      @media (max-width: 768px) {
+        #attendance-chart {
+          height: 240px;
+        }
+      }
+      @media (max-width: 420px) {
+        #attendance-chart {
+          height: 200px;
+        }
+      }
+
+      /* Breadcrumb disembunyikan di layar sangat kecil */
+      .breadcrumb {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      @media (max-width: 576px) {
+        .breadcrumb {
+          display: none;
+        }
+      }
+
+      /* Teks panjang tidak meluber */
+      .list-unstyled,
+      .list-group,
+      .list-group-item,
+      .card-body {
+        overflow-wrap: anywhere;
+      }
+
+      /* Media responsif */
+      img,
+      video,
+      canvas,
+      svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
       }
     </style>
   </head>

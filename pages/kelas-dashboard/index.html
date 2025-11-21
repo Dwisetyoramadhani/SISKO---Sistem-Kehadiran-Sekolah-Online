@@ -93,12 +93,112 @@
         border-radius: 12px;
         padding: 12px;
       }
+
+      /* ===== Responsive-only tweaks ===== */
+      html,
+      body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      /* Padding konten lebih rapat di layar kecil */
+      .app-main.p-4 {
+        padding: 1.25rem;
+      }
+      @media (max-width: 576px) {
+        .app-main.p-4 {
+          padding: 0.75rem;
+        }
+      }
+
+      /* Amankan tepi konten */
+      .container-fluid {
+        padding-inline: 1rem;
+      }
+      @media (max-width: 576px) {
+        .container-fluid {
+          padding-inline: 0.75rem;
+        }
+      }
+
+      /* Kartu stat lebih kompak di mobile */
+      @media (max-width: 576px) {
+        .stat-card .card-body {
+          gap: 0.75rem;
+        }
+        .stat-card .ic {
+          width: 36px;
+          height: 36px;
+          font-size: 1rem;
+          border-radius: 8px;
+        }
+        .stat-card .meta .val {
+          font-size: 1.2rem;
+        }
+        .stat-card .meta .cap {
+          font-size: 0.72rem;
+        }
+      }
+      @media (max-width: 420px) {
+        .stat-card .card-body {
+          gap: 0.6rem;
+        }
+        .stat-card .meta .val {
+          font-size: 1.1rem;
+        }
+      }
+
+      /* Ringkasan dan teks panjang tidak meluber */
+      #today-summary,
+      .section-title,
+      .card-body,
+      .stat-card .meta {
+        overflow-wrap: anywhere;
+      }
+
+      /* Grafik proporsional di layar kecil */
+      #attendance-chart {
+        min-height: 280px;
+      }
+      @media (max-width: 768px) {
+        #attendance-chart {
+          min-height: 240px;
+        }
+      }
+      @media (max-width: 420px) {
+        #attendance-chart {
+          min-height: 200px;
+        }
+      }
+
+      /* Empty state nyaman di mobile */
+      #chart-empty {
+        padding: 12px;
+      }
+      @media (max-width: 576px) {
+        #chart-empty {
+          padding: 10px;
+        }
+      }
+
+      /* Media responsif */
+      img,
+      video,
+      canvas,
+      svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
     </style>
   </head>
-  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+  <body
+    class="layout-fixed sidebar-expand-lg sidebar-collapse bg-body-tertiary"
+  >
     <div class="app-wrapper">
       <nav data-component="navbar" class="app-header"></nav>
       <aside data-component="sidebar-kelas" class="app-sidebar"></aside>
+      <div class="sidebar-overlay" data-lte-dismiss="sidebar"></div>
 
       <main class="app-main p-4">
         <div class="container-fluid">
@@ -187,6 +287,30 @@
     <script src="/js/auth/auth-storage.js"></script>
     <script src="/js/auth/auth-service.js"></script>
     <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/adminlte.js"></script>
+    <!-- Fallback: pastikan toggle/close bekerja meski navbar dimuat dinamis -->
+    <script>
+      // Tutup saat klik overlay atau elemen dengan data-lte-dismiss="sidebar"
+      document.addEventListener("click", function (e) {
+        const dismiss = e.target.closest(
+          '[data-lte-dismiss="sidebar"], .sidebar-overlay'
+        );
+        if (dismiss) {
+          document.body.classList.remove("sidebar-open");
+          document.body.classList.add("sidebar-collapse");
+        }
+      });
+      // Dukung tombol toggle (AdminLTE v4: data-lte-toggle, v3: data-widget="pushmenu")
+      document.addEventListener("click", function (e) {
+        const btn = e.target.closest(
+          '[data-lte-toggle="sidebar"], [data-widget="pushmenu"]'
+        );
+        if (!btn) return;
+        e.preventDefault();
+        document.body.classList.toggle("sidebar-open");
+        document.body.classList.toggle("sidebar-collapse");
+      });
+    </script>
 
     <script src="/js/siswa/siswa-storage.js"></script>
     <script src="/js/kehadiran/kehadiran-storage.js"></script>

@@ -55,18 +55,114 @@
         background: #f8d7da;
         color: #842029;
       }
+      /* ===== Responsive-only tweaks ===== */
+      html,
+      body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      /* Padding konten */
+      .app-main.p-4 {
+        padding: 1.25rem;
+      }
+      @media (max-width: 576px) {
+        .app-main.p-4 {
+          padding: 0.75rem;
+        }
+      }
+
+      /* Amankan tepi konten */
+      .container-fluid {
+        padding-inline: 1rem;
+      }
+      @media (max-width: 576px) {
+        .container-fluid {
+          padding-inline: 0.75rem;
+        }
+      }
+
+      /* Stat grid lebih kompak di mobile */
+      @media (max-width: 576px) {
+        .stat-grid {
+          gap: 0.75rem;
+        }
+        .stat-card {
+          min-width: 150px;
+          flex: 1 1 150px;
+        }
+        .stat-value {
+          font-size: 1.15rem;
+        }
+      }
+
+      /* Filter bar: susun ke bawah di mobile */
+      .filter-bar {
+        gap: 0.5rem;
+      }
+      @media (max-width: 768px) {
+        .filter-bar {
+          row-gap: 0.5rem;
+        }
+      }
       @media (max-width: 576px) {
         .filter-bar {
           flex-direction: column;
           align-items: stretch !important;
         }
+        .filter-bar .form-select,
+        .filter-bar .form-control,
+        .filter-bar .btn {
+          width: 100%;
+        }
+        .filter-bar .ms-auto {
+          margin-left: 0 !important;
+        }
+        .filter-bar .ms-auto.d-flex {
+          width: 100%;
+        }
+        .filter-bar .ms-auto .btn {
+          flex: 1 1 auto;
+        }
+      }
+
+      /* Tabel: tetap scroll horisontal, nyaman di sentuh */
+      .table-responsive {
+        -webkit-overflow-scrolling: touch;
+      }
+      @media (max-width: 576px) {
+        .table-responsive {
+          max-height: 55vh !important;
+        }
+        .table thead th,
+        .table td {
+          white-space: nowrap;
+        }
+      }
+
+      /* Media responsif */
+      img,
+      video,
+      canvas,
+      svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* Overlay hanya untuk layar kecil */
+      .sidebar-overlay { display: none; }
+      @media (max-width: 991.98px) {
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.2); }
+        .sidebar-open .sidebar-overlay { display: block; }
       }
     </style>
   </head>
-  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+  <body class="layout-fixed sidebar-expand-lg sidebar-collapse bg-body-tertiary">
     <div class="app-wrapper">
       <nav data-component="navbar" class="app-header"></nav>
       <aside data-component="sidebar-kelas" class="app-sidebar"></aside>
+      <div class="sidebar-overlay" data-lte-dismiss="sidebar"></div>
 
       <main class="app-main p-4">
         <div class="container-fluid">
@@ -205,6 +301,57 @@
     <script src="/js/auth/auth-service.js"></script>
     <script src="/js/auth/auth-guard.js"></script>
     <script src="/js/auth/auth-navbar.js"></script>
+
+    <!-- AdminLTE diperlukan untuk toggle sidebar -->
+    <script src="/js/adminlte.js"></script>
+
+    <!-- Fallback: hanya aktif di mobile, desktop selalu terbuka -->
+    <script>
+      const bodyEl = document.body;
+      const isDesktop = () => window.matchMedia('(min-width: 992px)').matches;
+
+      function applyResponsiveSidebar() {
+        if (isDesktop()) {
+          bodyEl.classList.remove('sidebar-open');
+          bodyEl.classList.remove('sidebar-collapse'); // desktop: sidebar selalu terlihat
+        } else {
+          bodyEl.classList.remove('sidebar-open');     // mobile: default tertutup
+          bodyEl.classList.add('sidebar-collapse');
+        }
+      }
+
+      applyResponsiveSidebar();
+      window.addEventListener('resize', applyResponsiveSidebar);
+
+      // Tutup via overlay/elemen dismiss (mobile saja)
+      document.addEventListener('click', function (e) {
+        const dismiss = e.target.closest('[data-lte-dismiss="sidebar"], .sidebar-overlay');
+        if (dismiss && !isDesktop()) {
+          bodyEl.classList.remove('sidebar-open');
+          bodyEl.classList.add('sidebar-collapse');
+        }
+      });
+
+      // Toggle via tombol navbar (mobile saja)
+      document.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-lte-toggle="sidebar"], [data-widget="pushmenu"]');
+        if (!btn) return;
+        e.preventDefault();
+        if (isDesktop()) return; // jangan collapse di desktop
+        bodyEl.classList.toggle('sidebar-open');
+        bodyEl.classList.toggle('sidebar-collapse');
+      });
+
+      // ESC menutup (mobile saja)
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !isDesktop()) {
+          bodyEl.classList.remove('sidebar-open');
+          bodyEl.classList.add('sidebar-collapse');
+        }
+      });
+    </script>
+
     <script src="/js/kehadiran/kehadiran-kelas-page.js"></script>
-  </body>
+  </div>
+</body>
 </html>

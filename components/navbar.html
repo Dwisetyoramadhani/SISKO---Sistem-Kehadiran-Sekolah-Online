@@ -2,6 +2,14 @@
   class="app-header navbar navbar-light bg-white border-bottom px-3"
   style="min-height: 56px"
 >
+  <button
+    id="btnSidebarToggle"
+    class="btn btn-sm btn-outline-secondary d-lg-none me-2"
+    aria-label="Toggle sidebar"
+  >
+    <i class="bi bi-list"></i>
+  </button>
+
   <div class="ms-auto d-flex align-items-center gap-3">
     <span class="text-secondary small" id="navUser">-</span>
     <button
@@ -39,6 +47,55 @@
         } else setTimeout(waitAuth, 40);
       }
       waitAuth();
+    })();
+
+    (function () {
+      // tunggu DOM
+      function initSidebarToggle() {
+        const btn = document.getElementById("btnSidebarToggle");
+        const sidebar = document.querySelector(".app-sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if (!btn || !sidebar) return;
+
+        btn.addEventListener("click", () => {
+          sidebar.classList.toggle("show");
+          document.body.classList.toggle("sidebar-open");
+          overlay?.classList.toggle("show");
+        });
+
+        // klik overlay menutup sidebar
+        overlay?.addEventListener("click", () => {
+          sidebar.classList.remove("show");
+          sidebar.classList.remove("sidebar-open");
+          overlay.classList.remove("show");
+          document.body.classList.remove("sidebar-open");
+        });
+
+        // close saat link di sidebar diklik (berguna untuk mobile)
+        document.querySelectorAll(".app-sidebar .nav-link").forEach((a) => {
+          a.addEventListener("click", () => {
+            if (window.innerWidth < 992) {
+              sidebar.classList.remove("show");
+              overlay?.classList.remove("show");
+              document.body.classList.remove("sidebar-open");
+            }
+          });
+        });
+      }
+
+      // tunggu availability Auth script yang kamu pakai (mirip ready() sebelumnya)
+      function waitReady() {
+        if (
+          document.readyState === "complete" ||
+          document.readyState === "interactive"
+        ) {
+          initSidebarToggle();
+        } else {
+          document.addEventListener("DOMContentLoaded", initSidebarToggle);
+        }
+      }
+      waitReady();
     })();
   </script>
 </header>
