@@ -57,21 +57,7 @@
       border: 1px solid #ced4da;
     }
 
-    /* Tombol */
-    /* .btn-primary {
-      background: linear-gradient(90deg, #65e788, #4EA6FF);
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
-      color: white;
-      transition: background 0.5s ease, transform 0.3s ease, filter 0.3s ease;
-    }
-
-    .btn-primary:hover {
-      background-color: liniear-gradient(90deg, #4bc3ff, #5DD37C);
-      transform: translateY(-2px);
-      filter: brightness(1.1);
-    } */
+    
     .btn-primary {
   background: linear-gradient(90deg, #65e788, #4EA6FF);
   border: none;
@@ -82,7 +68,7 @@
 }
 
 .btn-primary:hover {
-  background: linear-gradient(90deg, #4EA6FF, #65e788); /* dibalik */
+  background: linear-gradient(90deg, #4EA6FF, #65e788); 
   transform: translateY(-2px);
   filter: brightness(1.1);
 }
@@ -119,7 +105,6 @@
       margin: 10px 0;
     }
 
-    /* Bagian kanan - gambar */
     .gambar-section {
       flex: 1.2;
       background-color: #F4FBFF;
@@ -135,7 +120,6 @@
       height: auto;
     }
 
-    /* Responsif di layar sedang (tablet) */
     @media (max-width: 992px) {
       .login-container {
         flex-direction: column;
@@ -180,3 +164,5 @@
         display: none;
       }
     }
+
+    

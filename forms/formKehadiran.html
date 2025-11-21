@@ -1,26 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <title>SISKO | Tambah Kehadiran</title>
+    <meta charset="utf-8" />
+    <title>SISKO | Form Kehadiran</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/adminlte.css" />
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
     />
     <script src="/js/components-loader.js" defer></script>
     <style>
-      .preview-img {
-        max-width: 140px;
-        max-height: 140px;
-        border: 1px solid #dee2e6;
+      #previewBukti {
+        display: none;
+        max-width: 240px;
         border-radius: 0.5rem;
-        object-fit: cover;
-        display: none;
-      }
-      .dup-warning {
-        display: none;
       }
     </style>
   </head>
@@ -31,95 +25,117 @@
 
       <main class="app-main p-4">
         <div class="container-fluid">
-          <h2 class="h4 mb-1">Tambah Kehadiran</h2>
-          <p class="text-secondary mb-3">
-            Input status kehadiran siswa (cek duplikat otomatis).
-          </p>
+          <div class="mb-3">
+            <h2 class="h4 mb-1">Tambah Kehadiran</h2>
+            <p class="text-secondary mb-0">
+              Input kehadiran siswa (tanpa modal).
+            </p>
+          </div>
 
-          <form
-            id="formKehadiran"
-            class="card card-outline card-primary p-4 shadow-sm"
-          >
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label" for="kelasSelect">Kelas</label>
-                <select id="kelasSelect" class="form-select" required>
-                  <option value="" disabled selected>Pilih Kelas</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label" for="siswaSelect">Nama Siswa</label>
-                <select id="siswaSelect" class="form-select" required disabled>
-                  <option value="" disabled selected>Pilih Siswa</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label" for="tanggal">Tanggal</label>
-                <input id="tanggal" type="date" class="form-control" required />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label" for="statusSelect">Status</label>
-                <select id="statusSelect" class="form-select" required>
-                  <option value="Hadir">Hadir</option>
-                  <option value="Izin">Izin</option>
-                  <option value="Sakit">Sakit</option>
-                  <option value="Alfa">Alfa</option>
-                </select>
-              </div>
-              <div class="col-md-8">
-                <label class="form-label" for="keterangan"
-                  >Keterangan (opsional)</label
-                >
-                <input
-                  id="keterangan"
-                  type="text"
-                  class="form-control"
-                  placeholder="Misal: Demam, Surat Izin Orang Tua"
-                />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="bukti"
-                  >Bukti (foto opsional)</label
-                >
-                <input
-                  id="bukti"
-                  type="file"
-                  class="form-control"
-                  accept="image/*"
-                />
-              </div>
-              <div class="col-md-6 d-flex align-items-end">
-                <img id="previewBukti" class="preview-img" alt="Preview" />
-              </div>
-              <div class="col-12">
-                <div
-                  id="dupWarning"
-                  class="alert alert-warning py-2 px-3 dup-warning"
-                >
-                  Kehadiran siswa pada tanggal ini sudah ada. Menyimpan akan
-                  menimpa entri lama.
+          <div id="dupWarning" class="alert alert-warning d-none">
+            Entri kehadiran untuk siswa dan tanggal ini sudah ada. Submit akan
+            memperbarui data.
+          </div>
+
+          <div class="card shadow-sm">
+            <form id="formKehadiran" class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Kelas</label>
+                  <select id="kelasSelect" class="form-select" required>
+                    <option value="" disabled selected>Pilih Kelas</option>
+                  </select>
+                  <div class="form-text">
+                    Untuk akun kelas, kolom ini terkunci.
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Siswa</label>
+                  <select
+                    id="siswaSelect"
+                    class="form-select"
+                    required
+                    disabled
+                  >
+                    <option value="" disabled selected>Pilih Siswa</option>
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Tanggal</label>
+                  <input
+                    id="tanggal"
+                    type="date"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Status</label>
+                  <select id="statusSelect" class="form-select" required>
+                    <option value="" disabled selected>Pilih Status</option>
+                    <option value="Hadir">Hadir</option>
+                    <option value="Izin">Izin</option>
+                    <option value="Sakit">Sakit</option>
+                    <option value="Alfa">Alfa</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Bukti (Foto/URL)</label>
+                  <input
+                    id="bukti"
+                    type="file"
+                    accept="image/*"
+                    class="form-control"
+                  />
+                  <div class="form-text">
+                    Opsional. Jika diisi, disimpan sebagai DataURL.
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Keterangan</label>
+                  <textarea
+                    id="keterangan"
+                    rows="3"
+                    class="form-control"
+                    placeholder="Opsional"
+                  ></textarea>
+                </div>
+
+                <div class="col-12">
+                  <img id="previewBukti" alt="Preview bukti" />
                 </div>
               </div>
-            </div>
-            <div class="d-flex gap-2 mt-4">
-              <button class="btn btn-primary" type="submit">Simpan</button>
-              <a class="btn btn-outline-secondary" href="/pages/kehadiran.html"
-                >Batal</a
-              >
-            </div>
-          </form>
+
+              <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check2-circle"></i> Simpan
+                </button>
+                <a
+                  href="/pages/kehadiran.html"
+                  class="btn btn-outline-secondary"
+                >
+                  <i class="bi bi-arrow-left"></i> Kembali
+                </a>
+              </div>
+            </form>
+          </div>
         </div>
       </main>
 
       <footer class="app-footer">
-        <strong>Copyright © 2025 <a href="#">SISKO</a>.</strong> All rights
+        <strong>Copyright &copy; 2025 <a href="#">SISKO</a>.</strong> All rights
         reserved.
       </footer>
     </div>
 
+    <script src="/js/auth/auth-storage.js"></script>
+    <script src="/js/auth/auth-service.js"></script>
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/auth-navbar.js"></script>
     <script src="/js/adminlte.js"></script>
     <script src="/js/siswa/siswa-storage.js"></script>
-    <script src="/js/kelas/kelas-storage.js"></script>
     <script src="/js/kehadiran/kehadiran-storage.js"></script>
     <script src="/js/kehadiran/kehadiran-form.js"></script>
   </body>

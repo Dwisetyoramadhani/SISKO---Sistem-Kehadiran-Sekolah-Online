@@ -113,7 +113,6 @@
 
   <script>
     (function () {
-      // Set active menu
       const path = (location.pathname || "").replace(/\\/g, "/").toLowerCase();
       document.querySelectorAll(".custom-sidebar .nav-link").forEach((a) => {
         const href = (a.getAttribute("href") || "").toLowerCase();
@@ -121,7 +120,6 @@
         if (path === href || (base && path.startsWith(base)))
           a.classList.add("active");
       });
-      // Isi kelas & akun dari session
       try {
         const s = window.Auth?.session?.();
         if (s) {

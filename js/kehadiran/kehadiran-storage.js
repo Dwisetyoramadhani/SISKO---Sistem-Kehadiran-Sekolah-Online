@@ -43,7 +43,6 @@
         csvEscape(r.buktiUrl||'')
       ].join(','));
     });
-    // Tambahkan BOM agar Excel Windows menampilkan UTF-8 dengan benar
     return '\uFEFF' + lines.join('\r\n');
   }
   function downloadCSV(csv, filename){
@@ -65,5 +64,25 @@
   }
 
   seed();
-  window.KehadiranStore = { getAll, getByClass, add, remove, clear, exportCSV };
+  window.KehadiranStore = (function(){
+    const KEY = 'sisko_kehadiran';
+    const load = () => { try { return JSON.parse(localStorage.getItem(KEY)||'[]'); } catch { return []; } };
+    const saveAll = list => localStorage.setItem(KEY, JSON.stringify(list||[]));
+    const getAll = () => load();
+    const exportCSV = (rows) => {
+      const header = ['No','Nama','Kelas','Tanggal','Status','Keterangan','Waktu','Bukti'];
+      const csv = [header, ...rows.map((r,i)=>[
+        i+1,r.nama||'',r.kelas||'',r.tanggal||'',r.status||'',
+        String(r.keterangan||'').replace(/\r?\n/g,' '),
+        r.time||'',r.buktiUrl||''
+      ])].map(line=>line.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'kehadiran_'+new Date().toISOString().slice(0,10)+'.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+    return { getAll, saveAll, exportCSV };
+  })();
 })();

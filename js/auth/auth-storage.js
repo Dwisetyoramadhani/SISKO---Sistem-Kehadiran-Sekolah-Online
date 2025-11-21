@@ -53,6 +53,18 @@
   function logout(){ localStorage.removeItem(SESSION_KEY); }
   function current(){ try { return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); } catch { return null; } }
 
+  function saveSession(sess){
+    localStorage.setItem('sisko_session', JSON.stringify(sess));
+  }
+  function getSession(){
+    try { return JSON.parse(localStorage.getItem('sisko_session')||'null'); }
+    catch { return null; }
+  }
+  // Ekspos
+  window.Auth = window.Auth || {};
+  window.Auth.session = getSession;
+  window.Auth.clearSession = () => localStorage.removeItem('sisko_session');
+
   window.AuthStorage = {
     getUsers: ()=>getUsers().map(publicUser),
     createUser,
@@ -63,3 +75,16 @@
     isKelas: ()=>current()?.role==='kelas'
   };
 })();
+
+(function (w) {
+  const KEY = 'sisko_session';
+  function read() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; } }
+  function write(sess) { localStorage.setItem(KEY, JSON.stringify(sess || null)); }
+  function clear() { localStorage.removeItem(KEY); }
+
+  w.Auth = w.Auth || {};
+  w.Auth.session = read;       
+  w.Auth.getSession = read;    
+  w.Auth.setSession = write;
+  w.Auth.clearSession = clear;
+})(window);

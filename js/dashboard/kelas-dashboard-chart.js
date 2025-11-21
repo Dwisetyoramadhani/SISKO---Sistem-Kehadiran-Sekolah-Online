@@ -1,45 +1,83 @@
-(function(){
-  document.addEventListener('DOMContentLoaded', () => {
-    const s = Auth.session();
-    if (!s || s.role!=='kelas') return;
-    if (typeof ApexCharts==='undefined') return;
-    build(s.kelas, s.jurusan);
-  });
-
-  function lastDays(n){
-    const arr=[]; for(let i=n-1;i>=0;i--) arr.push(new Date(Date.now()-i*86400000).toISOString().slice(0,10));
-    return arr;
+(function () {
+  function waitReady(cb, tries = 0) {
+    if (window.Auth?.session && window.SiswaStore?.getAll && window.KehadiranStore?.getAll && window.ApexCharts) return cb();
+    if (tries > 200) return console.warn('kelas-dashboard-chart: timeout menunggu store/auth/apexcharts');
+    setTimeout(() => waitReady(cb, tries + 1), 50);
   }
 
-  function build(kelas,jurusan){
-    const el = document.getElementById('attendance-chart');
-    if (!el) return;
-    const label = `${kelas} ${jurusan||''}`.trim();
-    const raw = (window.KehadiranStore?.getAll()||[]).filter(r => r.kelas === label);
-    const days = lastDays(7);
-    const statuses = ['Hadir','Izin','Sakit','Alfa'];
-    const series = statuses.map(st => ({
-      name: st,
-      data: days.map(d => raw.filter(r => r.tanggal===d && r.status===st).length)
-    }));
-    const total = series.reduce((s,a)=>s+a.data.reduce((x,y)=>x+y,0),0);
-    if (!total){
-      el.style.display='none';
-      const empty = document.getElementById('chart-empty');
-      if (empty) empty.style.display='block';
-      return;
+  function sessionClassLabel() {
+    const s = window.Auth?.session?.();
+    if (!s || s.role !== 'kelas') return null;
+    return `${s.kelas || ''} ${s.jurusan || ''}`.trim();
+  }
+  function normLabel(v) {
+    return String(v || '').trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+
+  function getAllowedIds() {
+    const label = sessionClassLabel();
+    const siswa = window.SiswaStore.getAll?.() || [];
+    if (!label) return new Set(siswa.map((s) => String(s.id)));
+    const target = normLabel(label);
+    return new Set(
+      siswa
+        .filter((x) => normLabel(`${x.kelas || ''} ${x.jurusan || ''}`) === target)
+        .map((x) => String(x.id))
+    );
+  }
+
+  function getKehadiranForAllowed(allowedIds) {
+    const all = window.KehadiranStore.getAll?.() || [];
+    const filtered = all.filter((r) => allowedIds.has(String(r.siswaId)));
+    if (filtered.length === 0) {
+      const label = sessionClassLabel();
+      const target = normLabel(label);
+      return all.filter((r) => normLabel(r.kelas) === target);
     }
-    new ApexCharts(el, {
-      chart:{ type:'area', height:300, toolbar:{show:false}, fontFamily:'inherit' },
-      colors:['#4a60f0','#6b7077','#f5b100','#e06363'],
-      stroke:{ curve:'smooth', width:2 },
-      dataLabels:{ enabled:false },
-      legend:{ position:'top', horizontalAlign:'left', fontSize:'11px' },
-      grid:{ borderColor:'#e2e4e8', strokeDashArray:4 },
-      xaxis:{ categories: days.map(d=>d.slice(5)) },
-      yaxis:{ min:0 },
-      fill:{ type:'gradient', gradient:{ opacityFrom:.35, opacityTo:.05, stops:[0,90,100] } },
-      series
-    }).render();
+    return filtered;
   }
+
+  function lastNDates(n) {
+    const out = [];
+    const d = new Date();
+    for (let i = n - 1; i >= 0; i--) {
+      const t = new Date(d);
+      t.setDate(d.getDate() - i);
+      out.push(t.toISOString().slice(0, 10));
+    }
+    return out;
+  }
+
+  function render() {
+    const allowedIds = getAllowedIds();
+    const data = getKehadiranForAllowed(allowedIds);
+    const days = lastNDates(7);
+    const seriesNames = ['Hadir', 'Izin', 'Sakit', 'Alfa'];
+    const series = seriesNames.map((name) => ({
+      name,
+      data: days.map((dt) => data.filter((x) => x.tanggal === dt && x.status === name).length),
+    }));
+
+    const el = document.getElementById('attendance-chart');
+    const empty = document.getElementById('chart-empty');
+    if (!el) return;
+    const total = series.reduce((s, cur) => s + cur.data.reduce((a, b) => a + b, 0), 0);
+    if (total === 0) {
+      if (empty) empty.style.display = 'block';
+      el.innerHTML = '';
+      return;
+    } else if (empty) empty.style.display = 'none';
+
+    const chart = new ApexCharts(el, {
+      chart: { type: 'line', height: 300, toolbar: { show: false } },
+      series,
+      xaxis: { categories: days },
+      stroke: { width: 2 },
+      markers: { size: 3 },
+      legend: { position: 'top' },
+    });
+    chart.render();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => waitReady(render));
 })();

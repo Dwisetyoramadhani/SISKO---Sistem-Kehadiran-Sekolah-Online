@@ -5,10 +5,8 @@
     <title>SISKO | Dashboard Kelas</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-    <!-- BASE dinamis: SELALU ke root situs (bukan /pages/) -->
     <script>
       (function () {
-        // Hapus base lama jika ada (hindari duplikat)
         document.querySelectorAll("base").forEach((n, i) => {
           if (i > 0) n.remove();
         });
@@ -19,7 +17,6 @@
         const base = gh ? `/${repo}/` : "/";
         const el = document.createElement("base");
         el.setAttribute("href", base);
-        // Jika ada base pertama yang salah (mengandung /pages/), betulkan
         const exist = document.querySelector("base");
         if (exist) {
           const h = exist.getAttribute("href") || "";
@@ -27,7 +24,6 @@
         } else {
           document.head.insertBefore(el, document.head.firstChild);
         }
-        // console.log('[BASE]', document.querySelector('base')?.href);
       })();
     </script>
 
@@ -201,7 +197,6 @@
       </footer>
     </div>
 
-    <!-- Script: gunakan path RELATIF (tanpa slash depan) -->
     <script src="js/auth/auth-storage.js"></script>
     <script src="js/auth/auth-service.js"></script>
     <script src="js/auth/auth-guard.js"></script>

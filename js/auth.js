@@ -1,5 +1,3 @@
-// Simple auth wrapper// ubah sesuai
-
 
 export async function apiFetch(path, opts = {}) {
 const token = localStorage.getItem('token');
@@ -8,7 +6,6 @@ headers['Content-Type'] = 'application/json';
 if (token) headers['Authorization'] = `Bearer ${token}`;
 const res = await fetch(API_BASE + path, {...opts, headers});
 if (res.status === 401) {
-// token invalid or expired
 localStorage.removeItem('token');
 location.hash = '#/login';
 throw new Error('Unauthorized');
@@ -47,7 +44,6 @@ return !!localStorage.getItem('token');
   function read(key, fb){ try { return JSON.parse(localStorage.getItem(key) ?? fb); } catch { return JSON.parse(fb); } }
   function write(key, v){ localStorage.setItem(key, JSON.stringify(v)); }
 
-  // Users
   function getUsers(){ return read(USER_KEY,'[]'); }
   function setUsers(arr){ write(USER_KEY, arr); }
   function seedIfEmpty(){
@@ -59,7 +55,6 @@ return !!localStorage.getItem('token');
     console.info('[Auth] Seed users dibuat');
   }
 
-  // Session
   function login(username,password){
     const u = getUsers().find(x => x.username===username && x.password===password);
     if (!u) throw new Error('Login gagal');

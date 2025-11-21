@@ -1,152 +1,155 @@
-(() => {
-  document.addEventListener('DOMContentLoaded', init);
+// Normalizer teks
+function norm(s) {
+  if (!s) return "";
+  return String(s).toLowerCase().trim().replace(/\s+/g, " ");
+}
 
-  function init() {
-    const tbody = document.getElementById('kehadiranTbody');
-    if (!tbody) return;
+function deriveClassFromSession(sess){
+  if (!sess || sess.role !== 'kelas') return '';
+  if (sess.kelas) return `${sess.kelas} ${sess.jurusan||''}`.trim();
+  // fallback dari username
+  const raw = String(sess.username||'').toLowerCase();
+  const parts = raw.split('_').filter(Boolean);
+  if (!parts.length) return '';
+  const cap = s => s.replace(/\b\w/g,c=>c.toUpperCase());
+  const kelas = cap(parts[0]);
+  const jurusan = cap(parts.slice(1).join(' '));
+  return `${kelas} ${jurusan}`.trim();
+}
 
-    const btnTambah = document.getElementById('btnTambahKehadiran');
-    const btnRefresh = document.getElementById('btnRefreshKehadiran');
-    const btnClearAll = document.getElementById('btnClearAllKehadiran');
-    const btnExport = document.getElementById('btnExportKehadiran');
-    const searchInput = document.getElementById('searchKehadiran');
-    const filterKelas = document.getElementById('filterKelas');
-    const filterStatus = document.getElementById('filterStatus');
-    const filterFrom = document.getElementById('filterFrom');
-    const filterTo = document.getElementById('filterTo');
-    const btnApplyRange = document.getElementById('btnApplyRange');
-    const statTotal = document.getElementById('statTotal');
-    const statHadir = document.getElementById('statHadir');
-    const statIzin = document.getElementById('statIzin');
-    const statSakit = document.getElementById('statSakit');
-    const statAlfa = document.getElementById('statAlfa');
-    const infoCount = document.getElementById('kehadiranInfoCount');
+function findClassViaSiswa(sess){
+  if (!sess || sess.role!=='kelas') return '';
+  const all = JSON.parse(localStorage.getItem('sisko_siswa')||'[]');
+  const label = deriveClassFromSession(sess);
+  if (!label) return '';
+  const hit = all.find(s => `${s.kelas||''} ${s.jurusan||''}`.trim().toLowerCase() === label.toLowerCase());
+  if (hit) return `${hit.kelas} ${hit.jurusan||''}`.trim();
+  return label; 
+}
 
-    let data = [];
+function getSession(){
+  try { return JSON.parse(localStorage.getItem('sisko_session')||'null'); }
+  catch { return null; }
+}
 
-    function load() {
-      data = window.KehadiranStore.getAll().map(r => {
-        if (r.siswaId && (!r.kelas || !/\s/.test(r.kelas))) {
-          const s = (window.SiswaStore?.getAll() || []).find(x => x.id === r.siswaId);
-          if (s) r.kelas = `${s.kelas} ${s.jurusan || ''}`.trim();
-        }
-        return r;
-      }).sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || ''));
-      updateStats();
-      fillFilterKelas();
-    }
+function getAllSiswa() {
+  return JSON.parse(localStorage.getItem("sisko_siswa") || "[]");
+}
 
-    function updateStats() {
-      statTotal.textContent = data.length;
-      statHadir.textContent = data.filter(d => d.status === 'Hadir').length;
-      statIzin.textContent = data.filter(d => d.status === 'Izin').length;
-      statSakit.textContent = data.filter(d => d.status === 'Sakit').length;
-      statAlfa.textContent = data.filter(d => d.status === 'Alfa').length;
-    }
+function getAllAttendance() {
+  return JSON.parse(localStorage.getItem("sisko_kehadiran") || "[]");
+}
 
-    function fillFilterKelas() {
-      const kelasAll = Array.from(new Set(data.map(d => d.kelas).filter(Boolean))).sort();
-      filterKelas.innerHTML = '<option value="">Semua Kelas</option>' +
-        kelasAll.map(k => `<option value="${k}">${k}</option>`).join('');
-    }
+function saveAttendance(list) {
+  localStorage.setItem("sisko_kehadiran", JSON.stringify(list));
+}
 
-    function inRange(tgl) {
-      if (!tgl) return false;
-      if (filterFrom.value && tgl < filterFrom.value) return false;
-      if (filterTo.value && tgl > filterTo.value) return false;
-      return true;
-    }
+function getTodayLabel() {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, "0");
+  const month = today.toLocaleString("id-ID", { month: "long" });
+  const year = today.getFullYear();
+  return `${day} ${month} ${year}`;
+}
 
-    function filtered() {
-      const q = (searchInput.value || '').toLowerCase().trim();
-      return data.filter(r => {
-        if (filterKelas.value && r.kelas !== filterKelas.value) return false;
-        if (filterStatus.value && r.status !== filterStatus.value) return false;
-        if ((filterFrom.value || filterTo.value) && !inRange(r.tanggal)) return false;
-        if (!q) return true;
-        return (
-          (r.nama || '').toLowerCase().includes(q) ||
-          (r.kelas || '').toLowerCase().includes(q) ||
-          (r.status || '').toLowerCase().includes(q) ||
-          (r.keterangan || '').toLowerCase().includes(q)
-        );
-      });
-    }
-
-    function badge(s) {
-      if (!s) s = '-';
-      return `<span class="badge-status ${s} badge rounded-pill px-3">${s}</span>`;
-    }
-
-    function render() {
-      const rows = filtered();
-      if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-secondary py-4">Tidak ada data.</td></tr>`;
-        infoCount.textContent = '0 baris ditampilkan';
-        return;
-      }
-      tbody.innerHTML = rows.map((r, i) => `
-        <tr data-id="${r.id}">
-          <td class="text-muted">${i + 1}</td>
-          <td>${r.nama || '-'}</td>
-            <td><span class="badge bg-light border text-dark">${r.kelas || '-'}</span></td>
-          <td>${r.tanggal || '-'}</td>
-          <td>${badge(r.status)}</td>
-          <td>${r.keterangan || '-'}</td>
-          <td>${r.buktiUrl ? `<button class="btn btn-outline-info btn-sm" data-view="${r.id}"><i class="bi bi-image"></i></button>` : '-'}</td>
-          
-        </tr>
-      `).join('');
-      infoCount.textContent = `${rows.length} baris ditampilkan`;
-    }
-
-    document.addEventListener('click', e => {
-      const del = e.target.closest('[data-del]');
-      if (del) {
-        const id = Number(del.getAttribute('data-del'));
-        if (confirm('Hapus entri ini?')) {
-          window.KehadiranStore.remove(id);
-          load(); render();
-        }
-      }
-      const view = e.target.closest('[data-view]');
-      if (view) {
-        const id = Number(view.getAttribute('data-view'));
-        const item = data.find(x => x.id === id);
-        if (item?.buktiUrl) {
-          const w = window.open('', '_blank');
-          w.document.write(`<title>Bukti</title><img style="max-width:100%;height:auto" src="${item.buktiUrl}" />`);
-        }
-      }
-    });
-
-    btnTambah?.addEventListener('click', () => window.location.href = '/forms/formKehadiran.html');
-    btnRefresh?.addEventListener('click', () => { load(); render(); });
-    btnClearAll?.addEventListener('click', () => {
-      if (!confirm('Hapus semua kehadiran?')) return;
-      window.KehadiranStore.clear();
-      load(); render();
-    });
-    btnExport?.addEventListener('click', (e) => {
-      const rows = filtered();
-      // Pilihan cepat:
-      // - OK: ekspor yang ditampilkan (sesuai filter/sort saat ini)
-      // - Cancel: ekspor semua data
-      if (!rows.length && !(window.KehadiranStore.getAll()||[]).length){
-        return alert('Tidak ada data untuk diekspor');
-      }
-      const ok = confirm('Ekspor data yang ditampilkan (sesuai filter)?\nPilih Cancel untuk ekspor semua data.');
-      if (ok){
-        if (!rows.length) { alert('Tidak ada baris sesuai filter.'); return; }
-        window.KehadiranStore.exportCSV(rows);
-      } else {
-        window.KehadiranStore.exportCSV(); // semua
-      }
-    });
-    [searchInput, filterKelas, filterStatus].forEach(el => el?.addEventListener('input', render));
-    btnApplyRange?.addEventListener('click', render);
-
-    load();
-    render();
+function load() {
+  const sess = getSession();
+  if (!sess || sess.role !== 'kelas'){
+    alert('Halaman ini hanya untuk akun kelas.');
+    return;
   }
-})();
+  let classLabel = `${sess.kelas||''} ${sess.jurusan||''}`.trim();
+  if (!classLabel){
+    classLabel = findClassViaSiswa(sess);
+    if (!classLabel){
+      alert('Akun kelas belum memiliki kelas/jurusan & tidak dapat diturunkan.');
+      return;
+    }
+  }
+
+  const allSiswa = getAllSiswa();
+  const siswaKelas = allSiswa
+    .filter(s => norm(`${s.kelas} ${s.jurusan}`) === norm(classLabel))
+    .sort((a, b) => a.nama.localeCompare(b.nama));
+
+  const tbody = document.getElementById("absenTable");
+  if (!tbody) return;
+
+  const todayLabel = getTodayLabel();
+
+  const allAbsensi = getAllAttendance();
+  const allowedIds = new Set(siswaKelas.map(s => String(s.id)));
+
+  const todayAtt = allAbsensi.filter(a =>
+    a.date === todayLabel &&
+    (
+      
+      (a.id_siswa != null && allowedIds.has(String(a.id_siswa))) ||
+      
+      norm(a.kelas) === norm(classLabel)
+    )
+  );
+
+  const attendMap = new Map();
+  todayAtt.forEach(a => {
+    if (a.id_siswa != null && allowedIds.has(String(a.id_siswa))) {
+      attendMap.set(a.id_siswa, a);
+    } else if (norm(a.kelas) === norm(classLabel) && a.id_siswa != null) {
+      attendMap.set(a.id_siswa, a);
+    }
+  });
+
+  tbody.innerHTML = "";
+  if (!siswaKelas.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary">Tidak ada siswa untuk kelas ${classLabel}</td></tr>`;
+    return;
+  }
+
+  siswaKelas.forEach((s, i) => {
+    const rec = attendMap.get(s.id) || { status: "" };
+    const kelasFull = `${s.kelas} ${s.jurusan}`.trim();
+    tbody.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${s.nama}</td>
+        <td>${kelasFull}</td>
+        <td>
+          <select class="form-select form-select-sm status-input" data-id="${s.id}">
+            <option value="">-</option>
+            <option value="Hadir" ${rec.status === "Hadir" ? "selected" : ""}>Hadir</option>
+            <option value="Izin" ${rec.status === "Izin" ? "selected" : ""}>Izin</option>
+            <option value="Sakit" ${rec.status === "Sakit" ? "selected" : ""}>Sakit</option>
+            <option value="Alfa" ${rec.status === "Alfa" ? "selected" : ""}>Alfa</option>
+          </select>
+        </td>
+      </tr>
+    `);
+  });
+
+  tbody.querySelectorAll(".status-input").forEach(sel => {
+    sel.addEventListener("change", e => saveStatus(e, classLabel, todayLabel));
+  });
+}
+
+function saveStatus(e, classLabel, todayLabel) {
+  const id = Number(e.target.dataset.id);
+  const status = e.target.value;
+
+  const all = getAllAttendance();
+
+  const kept = all.filter(r => !(r.id_siswa === id && r.date === todayLabel));
+
+  if (status) {
+    kept.push({
+      id_siswa: id,
+      kelas: classLabel,
+      status,
+      date: todayLabel,
+      time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+    });
+  }
+
+  saveAttendance(kept);
+}
+
+document.addEventListener("DOMContentLoaded", load);

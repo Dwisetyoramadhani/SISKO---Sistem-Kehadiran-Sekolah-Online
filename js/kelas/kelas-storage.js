@@ -1,28 +1,27 @@
 (function () {
   const KEY = 'sisko_kelas';
 
-  function getAll() {
-    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-    catch { return []; }
-  }
-  function setAll(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
+  const saveAll = list => localStorage.setItem(KEY, JSON.stringify(list || []));
+  const getAll = () => load();
+
   function add(kelas) {
     const data = getAll();
     data.push({
       id: Date.now(),
-      kelas: kelas.kelas,        // X / XI / XII
-      jurusan: kelas.jurusan,    // RPL 1 / TP 1 / dst
+      kelas: kelas.kelas,       
+      jurusan: kelas.jurusan,    
       walikelas: kelas.walikelas
     });
-    setAll(data);
+    saveAll(data);
   }
   function remove(id) {
-    setAll(getAll().filter(k => k.id !== id));
+    saveAll(getAll().filter(k => k.id !== id));
   }
   function clear() { localStorage.removeItem(KEY); }
   function getUniqueTingkat() {
     return Array.from(new Set(getAll().map(k => String(k.kelas || '').trim()))).filter(Boolean);
   }
 
-  window.KelasStore = { getAll, setAll, add, remove, clear, getUniqueTingkat };
+  window.KelasStore = { getAll, saveAll, add, remove, clear, getUniqueTingkat };
 })();

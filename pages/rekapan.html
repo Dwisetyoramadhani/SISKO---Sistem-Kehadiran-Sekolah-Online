@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SISKO | Rekapan Kehadiran Siswa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/adminlte.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+    />
+    <script src="/js/components-loader.js" defer></script>
+    <style>
+      .table thead th {
+        background: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+      .stat-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .stat-card {
+        flex: 1 1 140px;
+        min-width: 140px;
+      }
+      .stat-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+    </style>
+  </head>
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+      <nav data-component="navbar" class="app-header"></nav>
+      <aside data-component="sidebar" class="app-sidebar"></aside>
+
+      <main class="app-main p-4">
+        <div class="container-fluid">
+          <div class="mb-3">
+            <h2 class="h4 mb-1">Rekapan Kehadiran Per Siswa</h2>
+            <p class="text-secondary mb-0">
+              Ringkasan kumulatif status kehadiran dalam rentang tanggal.
+            </p>
+          </div>
+
+          <div class="card shadow-sm mb-3">
+            <div class="card-header d-flex align-items-center gap-2 flex-wrap">
+              <select
+                id="rekapKelas"
+                class="form-select form-select-sm"
+                style="min-width: 220px"
+              >
+                <option value="">Semua Kelas</option>
+              </select>
+              <input
+                id="rekapFrom"
+                type="date"
+                class="form-control form-control-sm"
+              />
+              <input
+                id="rekapTo"
+                type="date"
+                class="form-control form-control-sm"
+              />
+              <button id="rekapApply" class="btn btn-outline-secondary btn-sm">
+                Terapkan
+              </button>
+              <input
+                id="rekapSearch"
+                placeholder="Cari nama / kelas"
+                class="form-control form-control-sm"
+                style="min-width: 220px"
+              />
+              <div class="ms-auto d-flex gap-2">
+                <button id="rekapExport" class="btn btn-outline-success btn-sm">
+                  <i class="bi bi-download"></i> Export CSV
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="stat-bar">
+                <div class="card stat-card shadow-sm">
+                  <div class="card-body py-2">
+                    <div class="text-secondary small">Total Siswa</div>
+                    <div id="statSiswa" class="stat-value">0</div>
+                  </div>
+                </div>
+                <div class="card stat-card shadow-sm">
+                  <div class="card-body py-2">
+                    <div class="text-secondary small">Total Hadir</div>
+                    <div id="statHadir" class="stat-value">0</div>
+                  </div>
+                </div>
+                <div class="card stat-card shadow-sm">
+                  <div class="card-body py-2">
+                    <div class="text-secondary small">Total Izin</div>
+                    <div id="statIzin" class="stat-value">0</div>
+                  </div>
+                </div>
+                <div class="card stat-card shadow-sm">
+                  <div class="card-body py-2">
+                    <div class="text-secondary small">Total Sakit</div>
+                    <div id="statSakit" class="stat-value">0</div>
+                  </div>
+                </div>
+                <div class="card stat-card shadow-sm">
+                  <div class="card-body py-2">
+                    <div class="text-secondary small">Total Alfa</div>
+                    <div id="statAlfa" class="stat-value">0</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive" style="max-height: 65vh">
+                <table
+                  class="table table-hover table-striped align-middle mb-0"
+                >
+                  <thead>
+                    <tr>
+                      <th style="width: 50px">#</th>
+                      <th>Nama</th>
+                      <th>Kelas</th>
+                      <th>Hadir</th>
+                      <th>Izin</th>
+                      <th>Sakit</th>
+                      <th>Alfa</th>
+                      <th>Total</th>
+                      <th>% Hadir</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rekapTbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer small d-flex justify-content-between">
+              <span id="rekapInfo">0 siswa</span>
+              <span class="text-secondary"
+                >Persentase = Hadir / (Hadir+Izin+Sakit+Alfa)</span
+              >
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <strong>Copyright &copy; 2025 <a href="#">SISKO</a>.</strong> All rights
+        reserved.
+      </footer>
+    </div>
+
+    <script src="/js/auth/auth-storage.js"></script>
+    <script src="/js/auth/auth-service.js"></script>
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/auth-navbar.js"></script>
+    <script src="/js/adminlte.js"></script>
+    <script src="/js/siswa/siswa-storage.js"></script>
+    <script src="/js/kehadiran/kehadiran-storage.js"></script>
+    <script src="/js/kehadiran/rekapan-page.js"></script>
+  </body>
+</html>

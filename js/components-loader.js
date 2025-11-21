@@ -21,20 +21,16 @@
         wrap.innerHTML = html.trim();
         const node = wrap.firstElementChild || document.createTextNode('');
 
-        // Ganti placeholder dengan node komponen
         placeholder.replaceWith(node);
 
-        // Eksekusi ulang semua <script> di dalam komponen
         node.querySelectorAll('script').forEach((old) => {
           const s = document.createElement('script');
-          // salin atribut (src, type, dll)
           [...old.attributes].forEach((a) => s.setAttribute(a.name, a.value));
           if (old.src) {
             s.src = old.src;
           } else {
             s.textContent = old.textContent || '';
           }
-          // ganti node script lama
           old.replaceWith(s);
         });
       } catch (err) {

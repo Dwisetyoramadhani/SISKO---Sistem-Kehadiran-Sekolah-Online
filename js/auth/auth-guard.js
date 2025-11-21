@@ -9,29 +9,36 @@
     return (location.pathname||'').replace(/\\/g,'/').toLowerCase();
   }
 
-  function guard(){
-    const sess = window.Auth?.session();
-    const p = path();
-    const isLogin = p === LOGIN.toLowerCase();
+  function guard() {
+    let sess = null;
+    try {
+      const s = window.Auth?.session;
+      sess = typeof s === 'function'
+        ? s()
+        : (s || JSON.parse(localStorage.getItem('sisko_session') || 'null'));
+    } catch { sess = null; }
 
-    if (!sess && !isLogin){
-      location.replace(LOGIN);
-      return;
-    }
-    if (sess && isLogin){
-      redirectByRole(sess);
-      return;
-    }
-    if (!sess) return;
+    if (!sess || !sess.role) {
+      const p = path();
+      const isLogin = p === LOGIN.toLowerCase();
 
-    // Kelas tidak boleh dashboard admin
-    if (sess.role === 'kelas' && p === ADMIN_DASH.toLowerCase()){
-      if (p !== KELAS_DASH.toLowerCase()){
-        location.replace(KELAS_DASH);
+      if (!sess && !isLogin){
+        location.replace(LOGIN);
+        return;
       }
-      return;
+      if (sess && isLogin){
+        redirectByRole(sess);
+        return;
+      }
+      if (!sess) return;
+
+      if (sess.role === 'kelas' && p === ADMIN_DASH.toLowerCase()){
+        if (p !== KELAS_DASH.toLowerCase()){
+          location.replace(KELAS_DASH);
+        }
+        return;
+      }
     }
-    // Admin bebas akses semua termasuk kelas-kehadiran & kehadiran
   }
 
   function redirectByRole(s){

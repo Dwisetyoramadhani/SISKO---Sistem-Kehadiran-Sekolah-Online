@@ -1,4 +1,32 @@
 (() => {
+  function createSiswaStorePolyfill() {
+    const KEY = 'sisko_siswa';
+    const load = () => {
+      try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+      catch { return []; }
+    };
+    const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr || []));
+    return {
+      getAll: () => load(),
+      setAll: (arr) => save(arr),
+      add: (obj) => { const data = load(); data.push(obj); save(data); },
+      clear: () => localStorage.removeItem(KEY),
+    };
+  }
+  const Siswa = (() => {
+    const poly = createSiswaStorePolyfill();
+    const s = window.SiswaStore || {};
+    return {
+      getAll: typeof s.getAll === 'function' ? () => s.getAll() : poly.getAll,
+      setAll:
+        typeof s.setAll === 'function' ? (a) => s.setAll(a) :
+        typeof s.saveAll === 'function' ? (a) => s.saveAll(a) :
+        typeof s.save === 'function' ? (a) => s.save(a) : poly.setAll,
+      add: typeof s.add === 'function' ? (o) => s.add(o) : poly.add,
+      clear: typeof s.clear === 'function' ? () => s.clear() : poly.clear,
+    };
+  })();
+
   const form = document.getElementById('formSiswa');
   if (!form) return;
 
@@ -110,9 +138,27 @@
   form.addEventListener('submit', e => {
     e.preventDefault();
     if (!parsedRows.length) return alert('Tidak ada data valid');
-    window.SiswaStore.addMany(parsedRows);
-    alert(`Disimpan: ${parsedRows.length} baris`);
-    // redirect ke table siswa
+
+    // siapkan id unik dan merge
+    const now = Date.now();
+    const rows = parsedRows.map((r,i) => ({ id: now + i, ...r }));
+    const current = (Siswa.getAll?.() || []);
+    const existsKey = new Set(current.map(v => `${(v.nama||'').toLowerCase()}|${(v.kelas||'').toLowerCase()}|${(v.jurusan||'').toLowerCase()}`));
+    const merged = current.slice();
+    rows.forEach(r => {
+      const key = `${r.nama.toLowerCase()}|${r.kelas.toLowerCase()}|${(r.jurusan||'').toLowerCase()}`;
+      if (!existsKey.has(key)) merged.push(r);
+    });
+
+    try {
+      Siswa.setAll(merged);
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menyimpan data siswa');
+      return;
+    }
+
+    alert(`Disimpan: ${rows.length} baris`);
     window.location.href = '/pages/siswa.html';
   });
 
@@ -127,7 +173,7 @@
 
   btnHapus.addEventListener('click', () => {
     if (!confirm('Hapus semua data siswa?')) return;
-    window.SiswaStore.clear();
+    try { Siswa.clear(); } catch {}
     alert('Data terhapus');
     resetPreview();
     setStatus('LocalStorage kosong', 'info');
